@@ -1,0 +1,7 @@
+/*
+  Content-Security-Policy: default-src 'self'; frame-src https://www.youtube.com; img-src 'self' https://img.youtube.com data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self';
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cache-Control: public, max-age=3600
