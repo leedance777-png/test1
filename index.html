@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6366f1">
+<meta name="description" content="컴퓨터 과학 강의 플랫폼 — 무료, 빠르고, 어디서나">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>컴강의</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+/* ─── 리셋 & 변수 ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+  --primary:#6366f1;--primary2:#818cf8;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;
+  --radius:14px;--radius-sm:8px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;
+  -webkit-tap-highlight-color:transparent;scroll-behavior:smooth}
+body{min-height:100dvh;padding-bottom:calc(64px + var(--safe-bottom));overscroll-behavior:none}
+
+/* ─── 헤더 ───────────────────────────────────── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,23,42,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:calc(var(--safe-top) + 12px) 16px 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.header-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.logo{font-size:1.2rem;font-weight:800;color:var(--primary2);letter-spacing:-.5px;flex:1}
+.logo span{color:var(--text)}
+.search-wrap{position:relative;width:100%}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+#searchInput{
+  width:100%;padding:10px 12px 10px 38px;
+  background:var(--bg2);border:1.5px solid transparent;border-radius:var(--radius-sm);
+  color:var(--text);font-size:.95rem;outline:none;transition:border-color .2s;
+}
+#searchInput:focus{border-color:var(--primary)}
+#searchInput::placeholder{color:var(--text3)}
+
+/* ─── 카테고리 탭 ────────────────────────────── */
+.tabs-wrap{
+  position:sticky;top:calc(var(--safe-top) + 82px);z-index:99;
+  background:rgba(15,23,42,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex-shrink:0;padding:6px 14px;border-radius:100px;
+  background:var(--bg2);color:var(--text2);font-size:.85rem;font-weight:500;
+  border:none;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;
+}
+.tab.active{background:var(--primary);color:#fff;font-weight:600}
+.tab:active{opacity:.7}
+
+/* ─── 강의 목록 ──────────────────────────────── */
+main{padding:16px}
+.section-title{font-size:.8rem;font-weight:600;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:12px}
+.count{color:var(--primary2)}
+.grid{display:flex;flex-direction:column;gap:12px}
+
+/* ─── 강의 카드 ──────────────────────────────── */
+.card{
+  background:var(--bg2);border-radius:var(--radius);overflow:hidden;
+  display:flex;gap:12px;padding:12px;
+  border:1.5px solid rgba(255,255,255,.04);
+  cursor:pointer;transition:transform .15s,border-color .15s;
+  -webkit-user-select:none;user-select:none;
+}
+.card:active{transform:scale(.98);border-color:var(--primary)}
+.thumb{
+  flex-shrink:0;width:100px;height:68px;border-radius:var(--radius-sm);
+  background:var(--bg3);overflow:hidden;position:relative;
+}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-play{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.3);
+}
+.thumb-play svg{filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.card-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.card-title{font-size:.95rem;font-weight:600;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-desc{font-size:.8rem;color:var(--text2);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.badge{
+  padding:2px 8px;border-radius:100px;font-size:.72rem;font-weight:600;
+}
+.badge-level-입문{background:rgba(34,197,94,.15);color:#4ade80}
+.badge-level-초급{background:rgba(59,130,246,.15);color:#60a5fa}
+.badge-level-중급{background:rgba(245,158,11,.15);color:#fbbf24}
+.badge-level-고급{background:rgba(239,68,68,.15);color:#f87171}
+.badge-cat{background:var(--bg3);color:var(--text2)}
+.badge-time{background:transparent;color:var(--text3);padding-left:0}
+
+/* ─── 진도 완료 표시 ─────────────────────────── */
+.card.done .thumb::after{
+  content:'✓';position:absolute;top:4px;right:4px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--primary);color:#fff;font-size:.75rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.card.done{border-color:rgba(99,102,241,.3)}
+
+/* ─── 빈 상태 ────────────────────────────────── */
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty svg{margin-bottom:12px;opacity:.4}
+.empty p{font-size:.95rem}
+
+/* ─── 모달 (영상 플레이어) ───────────────────── */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-backdrop.open{opacity:1;pointer-events:auto}
+.modal{
+  width:100%;max-width:600px;margin:auto;
+  background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;
+  overflow:hidden;transform:translateY(20px);transition:transform .2s;
+  max-height:90dvh;display:flex;flex-direction:column;
+}
+.modal-backdrop.open .modal{transform:translateY(0)}
+.modal-header{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.modal-title{font-size:1rem;font-weight:700;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-close{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg3);border:none;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+}
+.video-wrap{position:relative;padding-top:56.25%;background:#000}
+.video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.modal-body{padding:16px;overflow-y:auto}
+.modal-desc{font-size:.9rem;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.modal-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.btn-done{
+  width:100%;padding:13px;border-radius:var(--radius-sm);
+  background:var(--primary);color:#fff;font-size:.95rem;font-weight:700;
+  border:none;cursor:pointer;transition:opacity .15s;
+}
+.btn-done:active{opacity:.8}
+.btn-done.checked{background:var(--bg3);color:var(--text3)}
+
+/* ─── 하단 네비 ──────────────────────────────── */
+nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(15,23,42,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid rgba(255,255,255,.06);
+  display:flex;padding-bottom:var(--safe-bottom);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 0;background:none;border:none;cursor:pointer;
+  color:var(--text3);font-size:.7rem;font-weight:500;transition:color .15s;
+}
+.nav-btn.active{color:var(--primary2)}
+.nav-btn svg{transition:transform .15s}
+.nav-btn:active svg{transform:scale(.9)}
+
+/* ─── 내강의 뷰 ──────────────────────────────── */
+#myView{display:none}
+#myView.show{display:block}
+#homeView.hide{display:none}
+
+/* ─── 토스트 ─────────────────────────────────── */
+.toast{
+  position:fixed;bottom:calc(72px + var(--safe-bottom) + 10px);left:50%;
+  transform:translateX(-50%) translateY(10px);
+  background:var(--bg3);color:var(--text);padding:10px 20px;
+  border-radius:100px;font-size:.85rem;font-weight:500;
+  opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;
+  white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:300;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── 스켈레톤 로딩 ──────────────────────────── */
+.skeleton{
+  background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--radius);
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{height:92px;margin-bottom:12px}
+
+/* ─── 스크롤 탑 버튼 ─────────────────────────── */
+.scroll-top{
+  position:fixed;right:16px;bottom:calc(72px + var(--safe-bottom) + 16px);
+  width:40px;height:40px;border-radius:50%;
+  background:var(--primary);color:#fff;border:none;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s;
+  cursor:pointer;z-index:150;box-shadow:0 4px 12px rgba(99,102,241,.4);
+}
+.scroll-top.show{opacity:1;transform:scale(1)}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-top">
+    <div class="logo">💻 <span>컴강의</span></div>
+  </div>
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="searchInput" type="search" placeholder="강의 검색..." autocomplete="off" enterkeyhint="search">
+  </div>
+</header>
+
+<!-- 카테고리 탭 -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<!-- 홈 뷰 -->
+<main id="homeView">
+  <p class="section-title">강의 목록 <span class="count" id="countLabel"></span></p>
+  <div class="grid" id="grid">
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+    <div class="skeleton skel-card"></div>
+  </div>
+</main>
+
+<!-- 내 강의 뷰 -->
+<main id="myView">
+  <p class="section-title">완료한 강의</p>
+  <div class="grid" id="myGrid"></div>
+</main>
+
+<!-- 영상 모달 -->
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="btn-close" id="btnClose" aria-label="닫기">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="video-wrap" id="videoWrap"></div>
+    <div class="modal-body">
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-meta" id="modalMeta"></div>
+      <button class="btn-done" id="btnDone">✓ 완료 표시</button>
+    </div>
+  </div>
+</div>
+
+<!-- 하단 네비 -->
+<nav>
+  <button class="nav-btn active" id="navHome">
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    홈
+  </button>
+  <button class="nav-btn" id="navMy">
+    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    내강의
+  </button>
+</nav>
+
+<!-- 스크롤 탑 -->
+<button class="scroll-top" id="scrollTop" aria-label="맨 위로">
+  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+</button>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ── 상태 ────────────────────────────────────── */
+let courses = [], activeCategory = '전체', currentCourse = null, activeView = 'home';
+
+/* ── DOM ──────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const searchInput = $('searchInput');
+const tabsEl = $('tabs');
+const grid = $('grid');
+const myGrid = $('myGrid');
+const countLabel = $('countLabel');
+const modal = $('modal');
+const modalTitle = $('modalTitle');
+const modalDesc = $('modalDesc');
+const modalMeta = $('modalMeta');
+const videoWrap = $('videoWrap');
+const btnClose = $('btnClose');
+const btnDone = $('btnDone');
+const navHome = $('navHome');
+const navMy = $('navMy');
+const homeView = $('homeView');
+const myView = $('myView');
+const scrollTopBtn = $('scrollTop');
+const toastEl = $('toast');
+
+/* ── 진도 저장 (localStorage) ─────────────────── */
+const getProgress = () => JSON.parse(localStorage.getItem('progress')||'{}');
+const setProgress = p => localStorage.setItem('progress', JSON.stringify(p));
+const isDone = id => !!getProgress()[id];
+const toggleDone = id => {
+  const p = getProgress();
+  if(p[id]) delete p[id]; else p[id] = Date.now();
+  setProgress(p);
+};
+
+/* ── 토스트 ──────────────────────────────────── */
+let toastTimer;
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2000);
+}
+
+/* ── 썸네일 ──────────────────────────────────── */
+function thumbUrl(ytId){
+  return `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+}
+
+/* ── 뱃지 HTML ───────────────────────────────── */
+function badges(c){
+  return `<span class="badge badge-level-${c.level}">${c.level}</span>
+          <span class="badge badge-cat">${c.category}</span>
+          <span class="badge badge-time">🕐 ${c.duration}</span>`;
+}
+
+/* ── 카드 렌더 ───────────────────────────────── */
+function renderCard(c){
+  const done = isDone(c.id);
+  const div = document.createElement('div');
+  div.className = `card${done?' done':''}`;
+  div.dataset.id = c.id;
+  div.innerHTML = `
+    <div class="thumb">
+      <img src="${thumbUrl(c.youtubeId)}" alt="${c.title}" loading="lazy" decoding="async">
+      <div class="thumb-play">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" opacity=".9">
+          <path d="M5 3l14 9-14 9V3z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-title">${c.title}</div>
+      <div class="card-desc">${c.description}</div>
+      <div class="card-meta">${badges(c)}</div>
+    </div>`;
+  div.addEventListener('click', ()=>openModal(c));
+  return div;
+}
+
+/* ── 필터 & 렌더 ─────────────────────────────── */
+function filtered(){
+  const q = searchInput.value.trim().toLowerCase();
+  return courses.filter(c=>{
+    const matchCat = activeCategory==='전체' || c.category===activeCategory;
+    const matchQ = !q || c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) || c.category.includes(q);
+    return matchCat && matchQ;
+  });
+}
+
+function renderGrid(){
+  const list = filtered();
+  countLabel.textContent = `(${list.length})`;
+  grid.innerHTML='';
+  if(!list.length){
+    grid.innerHTML=`<div class="empty">
+      <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <p>검색 결과가 없습니다</p></div>`;
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  list.forEach(c=>frag.appendChild(renderCard(c)));
+  grid.appendChild(frag);
+}
+
+function renderMyGrid(){
+  const p = getProgress();
+  const done = courses.filter(c=>p[c.id]).sort((a,b)=>p[b.id]-p[a.id]);
+  myGrid.innerHTML='';
+  if(!done.length){
+    myGrid.innerHTML=`<div class="empty">
+      <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <p>완료한 강의가 없습니다</p></div>`;
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  done.forEach(c=>frag.appendChild(renderCard(c)));
+  myGrid.appendChild(frag);
+}
+
+/* ── 탭 렌더 ─────────────────────────────────── */
+function renderTabs(categories){
+  tabsEl.innerHTML='';
+  categories.forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.className = `tab${cat===activeCategory?' active':''}`;
+    btn.textContent = cat;
+    btn.addEventListener('click',()=>{
+      activeCategory = cat;
+      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.textContent===cat));
+      renderGrid();
+    });
+    tabsEl.appendChild(btn);
+  });
+}
+
+/* ── 모달 ────────────────────────────────────── */
+function openModal(c){
+  currentCourse = c;
+  modalTitle.textContent = c.title;
+  modalDesc.textContent = c.description;
+  modalMeta.innerHTML = badges(c);
+  videoWrap.innerHTML = `<iframe
+    src="https://www.youtube.com/embed/${c.youtubeId}?rel=0&modestbranding=1"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen loading="lazy" title="${c.title}"></iframe>`;
+  updateDoneBtn();
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  modal.classList.remove('open');
+  videoWrap.innerHTML='';
+  document.body.style.overflow='';
+  currentCourse = null;
+}
+
+function updateDoneBtn(){
+  if(!currentCourse) return;
+  const done = isDone(currentCourse.id);
+  btnDone.textContent = done ? '↩ 완료 취소' : '✓ 완료 표시';
+  btnDone.classList.toggle('checked', done);
+}
+
+btnClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+btnDone.addEventListener('click', ()=>{
+  if(!currentCourse) return;
+  toggleDone(currentCourse.id);
+  updateDoneBtn();
+  renderGrid();
+  if(activeView==='my') renderMyGrid();
+  showToast(isDone(currentCourse.id)?'완료 표시됨':'완료 취소됨');
+});
+
+/* ── 네비 전환 ───────────────────────────────── */
+function switchView(v){
+  activeView = v;
+  navHome.classList.toggle('active', v==='home');
+  navMy.classList.toggle('active', v==='my');
+  homeView.classList.toggle('hide', v!=='home');
+  myView.classList.toggle('show', v==='my');
+  if(v==='my') renderMyGrid();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+navHome.addEventListener('click',()=>switchView('home'));
+navMy.addEventListener('click',()=>switchView('my'));
+
+/* ── 검색 ────────────────────────────────────── */
+let searchTimer;
+searchInput.addEventListener('input',()=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(renderGrid, 180);
+});
+
+/* ── 스크롤 탑 ───────────────────────────────── */
+window.addEventListener('scroll',()=>{
+  scrollTopBtn.classList.toggle('show', window.scrollY > 300);
+},{passive:true});
+scrollTopBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+/* ── 키보드 ESC ──────────────────────────────── */
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+/* ── 데이터 로드 ─────────────────────────────── */
+async function loadCourses(){
+  try{
+    const res = await fetch('/data/courses.json');
+    const data = await res.json();
+    courses = data.courses;
+    renderTabs(data.categories);
+    renderGrid();
+  }catch(e){
+    grid.innerHTML=`<div class="empty"><p>강의를 불러오지 못했습니다.<br>새로고침 해주세요.</p></div>`;
+  }
+}
+
+/* ── PWA 서비스워커 등록 ─────────────────────── */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+
+loadCourses();
+})();
+</script>
+</body>
+</html>

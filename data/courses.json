@@ -1,0 +1,77 @@
+{
+  "categories": ["전체", "프로그래밍", "네트워크", "보안", "데이터베이스", "운영체제", "알고리즘"],
+  "courses": [
+    {
+      "id": 1,
+      "title": "파이썬 기초 완성",
+      "category": "프로그래밍",
+      "level": "입문",
+      "duration": "2시간 30분",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "파이썬을 처음 배우는 분들을 위한 완벽 입문 강의"
+    },
+    {
+      "id": 2,
+      "title": "자바스크립트 핵심",
+      "category": "프로그래밍",
+      "level": "초급",
+      "duration": "3시간",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "웹 개발의 핵심 언어 자바스크립트 완전 정복"
+    },
+    {
+      "id": 3,
+      "title": "TCP/IP 네트워크 기초",
+      "category": "네트워크",
+      "level": "입문",
+      "duration": "1시간 50분",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "인터넷이 동작하는 원리를 쉽게 이해하는 강의"
+    },
+    {
+      "id": 4,
+      "title": "SQL 데이터베이스 입문",
+      "category": "데이터베이스",
+      "level": "입문",
+      "duration": "2시간 15분",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "데이터를 저장하고 조회하는 SQL 기초"
+    },
+    {
+      "id": 5,
+      "title": "리눅스 명령어 마스터",
+      "category": "운영체제",
+      "level": "초급",
+      "duration": "1시간 40분",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "개발자라면 꼭 알아야 할 리눅스 핵심 명령어"
+    },
+    {
+      "id": 6,
+      "title": "웹 보안 기초",
+      "category": "보안",
+      "level": "초급",
+      "duration": "2시간",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "XSS, SQL인젝션 등 주요 웹 취약점과 방어법"
+    },
+    {
+      "id": 7,
+      "title": "정렬 알고리즘 완전정복",
+      "category": "알고리즘",
+      "level": "중급",
+      "duration": "2시간 45분",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "버블, 퀵, 병합 정렬을 그림으로 쉽게 이해"
+    },
+    {
+      "id": 8,
+      "title": "C언어 포인터 완전정복",
+      "category": "프로그래밍",
+      "level": "중급",
+      "duration": "1시간 55분",
+      "youtubeId": "dQw4w9WgXcQ",
+      "description": "C언어에서 가장 어려운 포인터를 시각적으로 학습"
+    }
+  ]
+}
